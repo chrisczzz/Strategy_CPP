@@ -6,7 +6,7 @@
  *
  * Introduction:
  * This file is part of the implementation of the backtest system.
- * The C++ system consists mainly 4 parts:
+ * The C++ system consists of mainly 4 parts:
  *
  * 1. The server object which reads recorded market data from database and feeds into the trading logic.
  *    The server side is also responsible for order processing for the orders from the trading logic.
