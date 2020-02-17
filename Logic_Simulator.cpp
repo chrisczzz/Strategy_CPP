@@ -29,7 +29,7 @@
 /*
  Constuctor function
  */
-Signal_Generator::Signal_Generator(std::string mode_ , std::string model_name_, std::string tradingday_, double threshold_ ,int corr_lookback_, std::string trade_, std::string pair_1_, std::set<std::string> ins_vect_){
+Signal_Generator::Signal_Generator(std::string &mode_ , std::string &model_name_, std::string &tradingday_, double threshold_ ,int corr_lookback_, std::string &trade_, std::string &pair_1_, std::set<std::string> ins_vect_){
 	this->corr_lookback = corr_lookback_;
 	this->trade_ins = trade_;
 	this->pair_1 = pair_1_;
@@ -140,8 +140,6 @@ Signal_Generator::Signal_Generator(std::string mode_ , std::string model_name_, 
 			}
 		}
 	}
-    
-    std::cout << "ini_file threshold: " << threshold << "\n";
     if (mode_ != "B"){
         this->model = ML(mode_, model_name_, threshold_, corr_lookback_, static_cast<int>(header.size()-1));
     }else{
@@ -157,9 +155,9 @@ Signal_Generator::Signal_Generator(std::string mode_ , std::string model_name_, 
 
 
 /*
- Function to read the recorded exchange timestamp and convert into C tm object. Function is used to determine the appropriate time to flat all the outstanding positions.
+ Function to read the recorded exchange timestamp and convert into a C tm object. Function is used to determine the appropriate time to flat all the outstanding positions.
  */
-tm Signal_Generator::make_time(std::string t_str){
+tm Signal_Generator::make_time(std::string &t_str){
 	tm tm_;
 	int year, month, day, hour, minute, second, micro;
 	sscanf(t_str.c_str(),"%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &micro);
@@ -390,7 +388,7 @@ void Signal_Generator::onTick(std::string time_, DATA & x, int size) {
 				}
 			}
             
-            /// updateing model samples ///
+            /// updating model samples ///
             std::pair<std::string, std::vector<double>> new_pp = std::make_pair(time_, features);
             model.processing_features(new_pp, x.mid[size-1]);
        
@@ -491,7 +489,7 @@ void Signal_Generator::register_backtester(Backtester *bt_){
 /*
  Function to open an position
  */
-void Signal_Generator::OpenOrder(std::string time,double position, int direction, DATA &x) {
+void Signal_Generator::OpenOrder(std::string &time,double position, int direction, DATA &x) {
 	int size = static_cast<int> (x.buffer.size());
 	std::string reference = get_reference();
 	openordertable.insert(reference);
@@ -525,7 +523,7 @@ void Signal_Generator::OpenOrder(std::string time,double position, int direction
 /*
  Function to initiate an order cancel request.
  */
-void Signal_Generator::CancelOrder(std::string time) {
+void Signal_Generator::CancelOrder(std::string &time) {
     std::set<std::string>::iterator it = openordertable.begin();
     while (it != openordertable.end()) {
         std::cout << "canceling " << *it << "\n";
@@ -538,8 +536,8 @@ void Signal_Generator::CancelOrder(std::string time) {
 
 
 /*
- Function to receive trade confirmation from the server side if the order is succesfully trade.
- Will update position inventory of the logic
+ Function to receive trade confirmation from the server side if the order is succesfully traded.
+ Will update position inventory logic
  */
 void Signal_Generator::onTrade(std::string time, int direction, double price, double quantity, double orig_quant, std::string ref, std::string action_flag){
 
@@ -609,7 +607,7 @@ void Signal_Generator::onTrade(std::string time, int direction, double price, do
 /*
  Function to process order cancel confirmation from the server side
  */
-void Signal_Generator::onCancel(std::string time, std::string ref){
+void Signal_Generator::onCancel(std::string &time, std::string &ref){
 	std::cout << "on cancel. \n";
 	if (openordertable.find(ref) != openordertable.end()) {
 		openordertable.erase(ref);
